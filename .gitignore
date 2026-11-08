@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+poetry.toml
+# IDEs
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+# ptyhon testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Database files and Data files
+*csv
+*.ifc
+*.sqlite
