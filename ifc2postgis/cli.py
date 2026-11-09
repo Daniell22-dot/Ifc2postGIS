@@ -7,9 +7,11 @@ delegates the actual conversion work to the parser module.
 """
 
 import sys
+
 import click
 
 from .parser import process_ifc
+from .database import validate_schema, validate_srid
 
 
 @click.command()
@@ -24,7 +26,8 @@ from .parser import process_ifc
     "--db-url",
     "-d",
     required=True,
-    help="PostGIS connection string, for example postgresql://user:pass@host:5432/dbname.",
+    help="PostGIS connection string, for example "
+    "postgresql://user:pass@host:5432/dbname.",
 )
 @click.option(
     "--srid",
@@ -33,7 +36,7 @@ from .parser import process_ifc
     type=int,
     show_default=True,
     help="Spatial Reference System Identifier for the output geometries. "
-         "Use 0 for local Cartesian coordinates.",
+    "Use 0 for local Cartesian coordinates.",
 )
 @click.option(
     "--schema",
@@ -46,8 +49,8 @@ from .parser import process_ifc
     default=False,
     show_default=True,
     help="Drop existing tables before writing new data. "
-     "Defaults to False to prevent accidental data loss. "
-     "Use with caution -- all existing data in the schema will be removed.",
+    "Defaults to False to prevent accidental data loss. "
+    "Use with caution -- all existing data in the schema will be removed.",
 )
 def main(input, db_url, srid, schema, drop):
     """
@@ -57,6 +60,14 @@ def main(input, db_url, srid, schema, drop):
     input file, preserves their 3D geometry, and writes them into four
     related tables.
     """
+    # Security: Validate schema and SRID before proceeding
+    try:
+        schema = validate_schema(schema)
+        srid = validate_srid(srid)
+    except ValueError as exc:
+        click.echo(f"Invalid input: {exc}", err=True)
+        sys.exit(1)
+
     click.echo("Input file: {0}".format(input))
     click.echo("Target schema: {0}".format(schema))
     click.echo("SRID: {0}".format(srid))
