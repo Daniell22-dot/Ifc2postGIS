@@ -43,9 +43,11 @@ from .parser import process_ifc
 )
 @click.option(
     "--drop/--no-drop",
-    default=True,
+    default=False,
     show_default=True,
-    help="Drop existing tables before writing new data.",
+    help="Drop existing tables before writing new data. "
+     "Defaults to False to prevent accidental data loss. "
+     "Use with caution -- all existing data in the schema will be removed.",
 )
 def main(input, db_url, srid, schema, drop):
     """
@@ -61,6 +63,12 @@ def main(input, db_url, srid, schema, drop):
     click.echo("Drop existing tables: {0}".format(drop))
 
     try:
+        if drop:
+            click.echo(
+                "WARNING: Dropping existing tables - all data will be lost!",
+                err=True,
+            )
+
         process_ifc(
             file_path=input,
             db_url=db_url,
