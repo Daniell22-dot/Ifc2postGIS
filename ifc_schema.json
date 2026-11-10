@@ -1,0 +1,46 @@
+{
+  "ifc_schema": "IFC4",
+  "entities": {
+    "IfcSpace": {
+      "description": "Space or room within a building storey",
+      "key_columns": ["GlobalId", "Name", "LongName", "Elevation", "StoreyGlobalId"],
+      "attributes": {
+        "GlobalId": "TEXT UNIQUE NOT NULL",
+        "Name": "TEXT",
+        "LongName": "TEXT",
+        "Elevation": "DOUBLE PRECISION",
+        "Area": "DOUBLE PRECISION",
+        "Volume": "DOUBLE PRECISION"
+      }
+    },
+    "IfcDoor": {
+      "description": "Door element in a building",
+      "key_columns": ["GlobalId", "Name", "GlobalID", "PredefinedType", "Elevation"],
+      "attributes": {
+        "GlobalId": "TEXT UNIQUE NOT NULL",
+        "Name": "TEXT",
+        "PredefinedType": "TEXT",
+        "Elevation": "DOUBLE PRECISION",
+        "OverallHeight": "DOUBLE PRECISION",
+        "OverallWidth": "DOUBLE PRECISION"
+      }
+    },
+    "IfcWindow": {
+      "description": "Window element in a building",
+      "key_columns": ["GlobalId", "Name", "GlobalID", "PredefinedType", "Elevation"],
+      "attributes": {
+        "GlobalId": "TEXT UNIQUE NOT NULL",
+        "Name": "TEXT",
+        "PredefinedType": "TEXT",
+        "Elevation": "DOUBLE PRECISION",
+        "OverallHeight": "DOUBLE PRECISION",
+        "OverallWidth": "DOUBLE PRECISION"
+      }
+    }
+  },
+  "hierarchy": {
+    "IfcSpace": "parent: IfcBuildingStorey (via IfcRelSpaceContainedInSpatialStructure)",
+    "IfcDoor": "parent: IfcBuilding (via IfcRelFillsElement) or IfcBuildingStorey",
+    "IfcWindow": "parent: IfcBuilding (via IfcRelFillsElement) or IfcBuildingStorey"
+  }
+}
