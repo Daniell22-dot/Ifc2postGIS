@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This paper presents a QGIS plugin for converting Industry Foundation Class (IFC) building models into a PostGIS database, providing a graphical user interface (GUI) using PyQT to make BIM-to-GIS workflows accessible to non-developers. The plugin extends the existing `ifc2postgis` command-line tool by adding a user-friendly interface, zoning analysis capabilities, and support for IFC files from various AEC software including ArchiCAD, SketchUp, Revit, Infraworks, and Civil 3D. The research explores the challenges of BIM interoperability, the architecture of the plugin, and its capabilities in spatial analysis and zoning classification.
+This paper presents a QGIS plugin for converting Industry Foundation Class (IFC) building models into a PostGIS database, providing a graphical user interface (GUI) using PyQT to make BIM-to-GIS workflows accessible to non-developers (Eastman et al., 2011; Rashed & Rashidi, 2019). The plugin extends the existing `ifc2postgis` command-line tool by adding a user-friendly interface, zoning analysis capabilities, and support for IFC files from various AEC software including ArchiCAD, SketchUp, Revit, Infraworks, and Civil 3D (buildingSMART International, 2018). The research explores the challenges of BIM interoperability, the architecture of the plugin, and its capabilities in spatial analysis and zoning classification (Kibert, 2016; Smith & Kim, 2022).
 
 ## 1. Introduction
 
