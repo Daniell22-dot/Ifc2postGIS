@@ -65,3 +65,43 @@ Each table includes `global_id` (IFC GlobalId), `name`, a 3D geometry column, an
 ## License
 
 MIT
+
+---
+
+## Database ER Diagram (Mermaid)
+
+Below is the ER diagram rendered via Mermaid.js. View this in a Mermaid-compatible viewer (e.g., GitHub, GitLab, VS Code with Mermaid extension) for proper rendering.
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f8f9fa', 'primaryBorderColor': '#333', 'lineColor': '#7f8c8d', 'fontFamily': 'sans-serif' }}}%%
+erDiagram
+    ifc_site {
+        int id PK
+        string global_id UNIQUE
+        string name
+        geometry geom
+    }
+    ifc_building {
+        int id PK
+        string global_id UNIQUE
+        string name
+        string site_global_id FK → ifc_site
+    }
+    ifc_storey {
+        int id PK
+        string global_id UNIQUE
+        string name
+        float elevation
+        string building_global_id FK → ifc_building
+    }
+    ifc_space {
+        int id PK
+        string global_id UNIQUE
+        string name
+        string long_name
+        string storey_global_id FK → ifc_storey
+    }
+    ifc_site ||--o{ ifc_building : "1:m"
+    ifc_building ||--o{ ifc_storey : "1:m"
+    ifc_storey ||--o{ ifc_space : "1:m"
+```

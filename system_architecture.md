@@ -84,11 +84,62 @@ dev = [
 IFC File → ifcopenshell.open() → parser.py → geometry extraction → database.py → PostGIS tables
 ```
 
+**Data Flow (Mermaid - view in compatible viewer):**
+```mermaid
+flowchart TD
+    A[IFC File] --> B[ifcopenshell.open()]
+    B --> C[parser.py - geometry extraction]
+    C --> D[database.py - table creation & insertion]
+    D --> E[PostGIS tables]
+    E --> F[QGIS Map Canvas]
+    
+    style A fill:#f8f9fa,stroke:#333,stroke-width:1px
+    style B fill:#e9ecef,stroke:#333,stroke-width:1px
+    style C fill:#e9ecef,stroke:#333,stroke-width:1px
+    style D fill:#e9ecef,stroke:#333,stroke-width:1px
+    style E fill:#f0f0f0,stroke:#333,stroke-width:1px
+    style F fill:#d0d5dd,stroke:#333,stroke-width:1px
+```
+
 **Core Tables Created (4 tables):**
 1. `ifc_site` - Site-level geometry and metadata
 2. `ifc_building` - Buildings linked to sites (foreign key: site_global_id)
 3. `ifc_storey` - Building storeys with elevation values (foreign key: building_global_id)
 4. `ifc_space` - Spaces linked to storeys (foreign key: storey_global_id)
+
+**ER Diagram (Mermaid - view in compatible viewer):**
+```mermaid
+erDiagram
+    ifc_site {
+        int id PK
+        string global_id UNIQUE
+        string name
+        geometry geom
+    }
+    ifc_building {
+        int id PK
+        string global_id UNIQUE
+        string name
+        string site_global_id FK → ifc_site
+    }
+    ifc_storey {
+        int id PK
+        string global_id UNIQUE
+        string name
+        float elevation
+        string building_global_id FK → ifc_building
+    }
+    ifc_space {
+        int id PK
+        string global_id UNIQUE
+        string name
+        string long_name
+        string storey_global_id FK → ifc_storey
+    }
+    ifc_site ||--o{ ifc_building : "1:m"
+    ifc_building ||--o{ ifc_storey : "1:m"
+    ifc_storey ||--o{ ifc_space : "1:m"
+```
 
 **Geometry Extraction:**
 - Uses `ifcopenshell.geom.create_shape()` with `use-world-coords` setting
