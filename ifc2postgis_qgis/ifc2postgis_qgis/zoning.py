@@ -6,11 +6,11 @@ from qgis.PyQt.QtWidgets import QMessageBox
 
 
 def analyze_spaces(ifc_file, db_url, schema, srid):
-    """Analyze IFC spaces for zoning and usage classification.
+    """Analyze IFC spaces for room classification.
     
-    This function extracts space information from an IFC file and performs
-    zoning analysis to classify spaces by usage type (residential, commercial, 
-    industrial, etc.) and calculate area/volume metrics.
+    This function extracts IfcSpace elements from an IFC file and classifies
+    them by room type relevant to educational/BIM facilities: Laboratory,
+    Office, Corridor, Men, Ladies, and Other.
     
     Parameters:
         ifc_file: Path to the IFC file
@@ -19,7 +19,7 @@ def analyze_spaces(ifc_file, db_url, schema, srid):
         srid: Spatial Reference System Identifier
         
     Returns:
-        Dictionary with zoning analysis results
+        Dictionary with space list and room type statistics
     """
     import ifcopenshell
     import ifcopenshell.util.element
@@ -37,45 +37,35 @@ def analyze_spaces(ifc_file, db_url, schema, srid):
             "global_id": space.GlobalId if hasattr(space, "GlobalId") else None,
             "name": space.Name if hasattr(space, "Name") else None,
             "long_name": getattr(space, "LongName", None),
-            "storey": find_storey(space, ifc) if hasattr(space, "LongName") else None,
         }
         spaces.append(space_data)
     
-    # Zoning classification
-    zoning_stats = {
+    # Room classification for educational facilities
+    # Based on SOE.ifc model naming patterns: Laboratory, Office, Corridor, Men, Ladies
+    room_stats = {
         "total_spaces": len(spaces),
-        "by_usage": {"residential": 0, "commercial": 0, "industrial": 0, "other": 0},
-        "total_area": 0,
-        "total_volume": 0,
+        "by_type": {"Laboratory": 0, "Office": 0, "Corridor": 0, "Men": 0, "Ladies": 0, "Other": 0},
     }
     
     for space in spaces:
-        # Simple classification based on name keywords
         name = (space.get("name") or "").lower()
-        if any(word in name for word in ["office", "room", "apartment", "bedroom"]):
-            zoning_stats["by_usage"]["residential"] += 1
-        elif any(word in name for word in ["shop", "store", "market", "mall"]):
-            zoning_stats["by_usage"]["commercial"] += 1
-        elif any(word in name for word in ["factory", "warehouse", "plant"]):
-            zoning_stats["by_usage"]["industrial"] += 1
+        long_name = (space.get("long_name") or "").lower()
+        combined = name + " " + long_name
+        
+        if 'laborator' in combined:
+            room_stats["by_type"]["Laboratory"] += 1
+        elif 'office' in combined:
+            room_stats["by_type"]["Office"] += 1
+        elif 'corrid' in combined:
+            room_stats["by_type"]["Corridor"] += 1
+        elif 'men' in combined:
+            room_stats["by_type"]["Men"] += 1
+        elif 'ladies' in combined:
+            room_stats["by_type"]["Ladies"] += 1
         else:
-            zoning_stats["by_usage"]["other"] += 1
+            room_stats["by_type"]["Other"] += 1
     
     return {
         "spaces": spaces,
-        "zoning_stats": zoning_stats,
+        "room_stats": room_stats,
     }
-
-
-def find_storey(element, ifc):
-    """Find the storey (IfcBuildingStorey) that contains the given element."""
-    try:
-        # Try to get the associated storey
-        related = element.IsDeclaredBy or element.HasAssociativeContext
-        # Walk up through aggregate relationships
-        parent = ifc.util.element.get_aggregate(element)
-        if parent and hasattr(parent, "Name"):
-            return parent.Name
-    except Exception:
-        pass
-    return None

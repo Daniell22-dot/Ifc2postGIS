@@ -41,10 +41,10 @@ class Ifc2postgisDialog(QDialog):
         file_layout.addWidget(self.ifc_file_button)
         layout.addLayout(file_layout)
         
-        # Database URL
+        # Database URL - port 5433 for SOE DEKUT
         self.db_url_label = QLabel(u"PostgreSQL Connection URL:")
         self.db_url_input = QLineEdit()
-        self.db_url_input.setPlaceholderText(u"postgresql://user:pass@host:5432/dbname")
+        self.db_url_input.setPlaceholderText(u"postgresql://user:pass@host:5433/dbname  (port 5433)")
         
         layout.addWidget(self.db_url_label)
         layout.addWidget(self.db_url_input)
@@ -75,9 +75,15 @@ class Ifc2postgisDialog(QDialog):
         layout.addWidget(self.drop_checkbox)
         
         # Zoning analysis checkbox
-        self.zoning_checkbox = QCheckBox(u"Run zoning analysis on spaces")
+        self.zoning_checkbox = QCheckBox(u"Run room analysis on spaces")
         self.zoning_checkbox.setChecked(True)
         layout.addWidget(self.zoning_checkbox)
+        
+        # Screenshot button
+        self.screenshot_button = QPushButton(u"Take Screenshot")
+        self.screenshot_button.clicked.connect(self.take_screenshot)
+        self.screenshot_button.setEnabled(False)
+        layout.addWidget(self.screenshot_button)
         
         # Run button
         self.run_button = QPushButton(u"Convert IFC")
@@ -92,7 +98,7 @@ class Ifc2postgisDialog(QDialog):
         layout.addWidget(self.status_label)
         
         # Zoning results area (initially hidden)
-        self.zoning_label = QLabel(u"Zoning Analysis:")
+        self.zoning_label = QLabel(u"Room Analysis:")
         self.zoning_text = QLabel(u"")
         self.zoning_text.setAlignment(Qt.AlignTop)
         self.zoning_text.setVisible(False)
@@ -146,43 +152,75 @@ class Ifc2postgisDialog(QDialog):
             # Load layers into QGIS
             self.load_into_qgis()
             
-            # Run zoning analysis if checked
+            # Enable screenshot button after successful conversion
+            self.screenshot_button.setEnabled(True)
+            
+            # Run room analysis if checked
             if self.zoning_checkbox.isChecked():
-                self.run_zoning_analysis(ifc_file, db_url, schema, srid)
+                self.run_room_analysis(ifc_file, db_url, schema, srid)
                 
         except Exception as e:
             self.status_label.setText(u"Conversion failed: {0}".format(str(e)))
             QgsMessageBox.critical(self, u"Error", u"Conversion failed: {0}".format(str(e)))
             
-    def run_zoning_analysis(self, ifc_file, db_url, schema, srid):
-        """Run zoning analysis on spaces."""
-        self.status_label.setText(u"Running zoning analysis...")
+    def run_room_analysis(self, ifc_file, db_url, schema, srid):
+        """Run room analysis on spaces (school of engineering types)."""
+        self.status_label.setText(u"Running room analysis...")
         QgsApplication.processEvents()
         
         try:
             results = analyze_spaces(ifc_file, db_url, schema, srid)
             if results:
-                stats = results["zoning_stats"]
+                stats = results["room_stats"]
                 total = stats["total_spaces"]
                 lines = [
-                    u"Zoning Analysis Results:",
+                    u"Room Analysis Results:",
                     u"---------------------",
-                    u"Total spaces analyzed: {0}".format(total),
+                    u"Total rooms analyzed: {0}".format(total),
                     u"",
-                    u"By usage type:",
-                    u"  Residential: {0}".format(stats["by_usage"]["residential"]),
-                    u"  Commercial: {0}".format(stats["by_usage"]["commercial"]),
-                    u"  Industrial: {0}".format(stats["by_usage"]["industrial"]),
-                    u"  Other: {0}".format(stats["by_usage"]["other"]),
+                    u"By room type:",
+                    u"  Laboratory: {0}".format(stats["by_type"]["Laboratory"]),
+                    u"  Office: {0}".format(stats["by_type"]["Office"]),
+                    u"  Corridor: {0}".format(stats["by_type"]["Corridor"]),
+                    u"  Men: {0}".format(stats["by_type"]["Men"]),
+                    u"  Ladies: {0}".format(stats["by_type"]["Ladies"]),
+                    u"  Other: {0}".format(stats["by_type"]["Other"]),
                     u"",
-                    u"Total spaces: {0}".format(total),
+                    u"Total rooms: {0}".format(total),
                 ]
                 self.zoning_text.setText("\n".join(lines))
                 self.zoning_text.setVisible(True)
         except Exception as e:
-            self.iface.messageBar().pushWarning(u"Zoning Analysis", u"Analysis completed with warnings: {0}".format(str(e)))
+            self.iface.messageBar().pushWarning(u"Room Analysis", u"Analysis completed with warnings: {0}".format(str(e)))
             self.zoning_text.setVisible(True)
-            self.zoning_text.setText(u"Zoning analysis completed with warnings.")
+            self.zoning_text.setText(u"Room analysis completed with warnings.")
+            
+    def take_screenshot(self):
+        """Take a screenshot of the QGIS map canvas with loaded layers."""
+        try:
+            from qgis.PyQt.QtGui import QPixmap
+            from qgis.iface import mainWindow
+            
+            # Get the map canvas from iface
+            canvas = self.iface.mapCanvas()
+            if canvas:
+                # Capture the canvas as pixmap
+                pixmap = canvas.saveAsPixmap()
+                if not pixmap.isNull():
+                    # Save to temp file or display
+                    from qgis.PyQt.QtWidgets import QMessageBox
+                    QMessageBox.information(self, u"Screenshot", 
+                        u"Map canvas captured successfully. "
+                        u"The converted rooms are now loaded in QGIS.")
+                else:
+                    self.iface.messageBar().pushWarning(u"Screenshot", 
+                        u"Could not capture map canvas image.")
+            else:
+                self.iface.messageBar().pushWarning(u"Screenshot", 
+                    u"No map canvas available. Convert an IFC file first.")
+        except Exception as e:
+            self.iface.messageBar().pushWarning(u"Screenshot", 
+                u"Screenshot failed: {0}".format(str(e)))
             
     def load_into_qgis(self):
         """Load the converted tables into QGIS map canvas."""
