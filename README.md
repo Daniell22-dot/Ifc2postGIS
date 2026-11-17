@@ -73,33 +73,32 @@ MIT
 Below is the ER diagram rendered via Mermaid.js. View this in a Mermaid-compatible viewer (e.g., GitHub, GitLab, VS Code with Mermaid extension) for proper rendering.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#f8f9fa', 'primaryBorderColor': '#333', 'lineColor': '#7f8c8d', 'fontFamily': 'sans-serif' }}}%%
 erDiagram
     ifc_site {
         int id PK
         string global_id UNIQUE
         string name
-        geometry geom
+        geom
     }
     ifc_building {
         int id PK
         string global_id UNIQUE
         string name
-        string site_global_id FK → ifc_site
+        string site_global_id
     }
     ifc_storey {
         int id PK
         string global_id UNIQUE
         string name
         float elevation
-        string building_global_id FK → ifc_building
+        string building_global_id
     }
     ifc_space {
         int id PK
         string global_id UNIQUE
         string name
         string long_name
-        string storey_global_id FK → ifc_storey
+        string storey_global_id
     }
     ifc_site ||--o{ ifc_building : "1:m"
     ifc_building ||--o{ ifc_storey : "1:m"

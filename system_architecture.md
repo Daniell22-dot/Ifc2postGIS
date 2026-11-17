@@ -114,31 +114,32 @@ erDiagram
         int id PK
         string global_id UNIQUE
         string name
-        geometry geom
+        geom
     }
     ifc_building {
         int id PK
         string global_id UNIQUE
         string name
-        string site_global_id FK → ifc_site
+        string site_global_id
     }
     ifc_storey {
         int id PK
         string global_id UNIQUE
         string name
         float elevation
-        string building_global_id FK → ifc_building
+        string building_global_id
     }
     ifc_space {
         int id PK
         string global_id UNIQUE
         string name
         string long_name
-        string storey_global_id FK → ifc_storey
+        string storey_global_id
     }
     ifc_site ||--o{ ifc_building : "1:m"
     ifc_building ||--o{ ifc_storey : "1:m"
     ifc_storey ||--o{ ifc_space : "1:m"
+```
 ```
 
 **Geometry Extraction:**
