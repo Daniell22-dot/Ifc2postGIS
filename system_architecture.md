@@ -9,4 +9,3 @@ erDiagram
     ifc_building ||--o{ ifc_storey : "1:m"
     ifc_storey ||--o{ ifc_space : "1:m"
 ```
-```
