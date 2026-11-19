@@ -42,6 +42,7 @@ class Ifc2postgisQgisPlugin:
         """Run the plugin's main dialog."""
         from .dialog import Ifc2postgisDialog
 
-        dlg = Ifc2postgisDialog(self.iface)
-        dlg.show()
-        dlg.raise_()
+        self.dlg = Ifc2postgisDialog(self.iface, self.iface.mainWindow())
+        self.dlg.show()
+        self.dlg.raise_()
+        self.dlg.activateWindow()

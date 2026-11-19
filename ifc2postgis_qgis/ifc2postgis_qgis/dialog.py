@@ -25,8 +25,8 @@ from .zoning import analyze_spaces
 class Ifc2postgisDialog(QDialog):
     """Dialog for configuring and running IFC to PostGIS conversion."""
 
-    def __init__(self, iface):
-        super().__init__()
+    def __init__(self, iface, parent=None):
+        super().__init__(parent)
         self.iface = iface
         self.setWindowTitle(u"IFC to PostGIS Conversion")
         self.resize(500, 500)
