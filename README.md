@@ -1,5 +1,7 @@
 # ifc2postgis
 
+[![Python](https://img.shields.io/badge/Python-3.13--3.15-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/) [![Poetry](https://img.shields.io/badge/Poetry-packaging-3673A6?style=for-the-badge&logo=poetry&logoColor=white)](https://python-poetry.org/) [![IfcOpenShell](https://img.shields.io/badge/IfcOpenShell-%3E%3D0.9-0B7285?style=for-the-badge)](https://ifcopenshell.org/) [![IFC](https://img.shields.io/badge/IFC-ISO%2016739-6A5ACD?style=for-the-badge)](https://www.buildingsmart.org/) [![BIM](https://img.shields.io/badge/BIM-to%20GIS-1F7A8C?style=for-the-badge)](https://www.buildingsmart.org/) [![QGIS](https://img.shields.io/badge/QGIS-3.x-589F10?style=for-the-badge&logo=qgis&logoColor=white)](https://qgis.org/)
+
 ## What we are building
 
 `ifc2postgis` converts IFC (Industry Foundation Classes) building models into a
