@@ -3,6 +3,7 @@
 
 import os
 
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
 
@@ -24,7 +25,8 @@ class Ifc2postgisQgisPlugin:
     def initGui(self):
         """Create the menu entry and toolbar icon for the plugin."""
         main_window = self.iface.mainWindow()
-        self.action = QAction(u"&IFC to PostGIS", main_window)
+        icon = QIcon(os.path.join(self.plugin_dir, u"icon.png"))
+        self.action = QAction(icon, u"&IFC to PostGIS", main_window)
         self.action.setObjectName(u"ifc2postgisAction")
         self.action.triggered.connect(self.run)
         self.iface.addPluginToMenu(u"&BIM Tools", self.action)
