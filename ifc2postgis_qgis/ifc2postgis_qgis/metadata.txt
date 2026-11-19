@@ -1,10 +1,11 @@
 [general]
-Name: ifc2postgis-qgis
-Description: QGIS plugin to convert IFC building models to PostGIS database with GUI interface
-Version: 0.1.0
-Author: Daniell22-dot
-Email: manyasadaniel630@gmail.com
-QGIS: minimum 3.28
-Plugin type: QGIS
-Homepage: https://github.com/Daniell22-dot/Ifc2postGIS
-Category: BIM
+name=ifc2postgis-qgis
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.99
+description=Convert IFC building models to PostGIS and load the results in QGIS.
+about=Provides a GUI for converting IFC sites, buildings, storeys and spaces into PostGIS tables and classifies spaces for educational facilities.
+version=0.1.0
+author=Daniell22-dot
+email=manyasadaniel630@gmail.com
+homepage=https://github.com/Daniell22-dot/Ifc2postGIS
+category=Database
