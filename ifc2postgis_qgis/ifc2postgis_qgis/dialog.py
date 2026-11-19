@@ -127,21 +127,24 @@ class Ifc2postgisDialog(QDialog):
             QMessageBox.critical(self, u"Error", u"SRID must be a valid integer.")
             return
 
+        plugin_dir = os.path.dirname(__file__)
+        project_root = os.path.abspath(os.path.join(plugin_dir, u"..", u".."))
+        for path in (plugin_dir, project_root):
+            if path not in sys.path:
+                sys.path.insert(0, path)
+
         try:
             from ifc2postgis.parser import process_ifc
-        except ImportError:
-            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), u"..", u".."))
-            if project_root not in sys.path:
-                sys.path.insert(0, project_root)
-            try:
-                from ifc2postgis.parser import process_ifc
-            except ImportError as exc:
-                QMessageBox.critical(
-                    self,
-                    u"Error",
-                    u"ifc2postgis package is not available: {0}".format(str(exc)),
-                )
-                return
+        except ImportError as exc:
+            QMessageBox.critical(
+                self,
+                u"Error",
+                u"Cannot load the IFC converter: {0}\n\n"
+                u"Make sure ifcopenshell is installed in the QGIS Python environment.".format(
+                    str(exc)
+                ),
+            )
+            return
 
         self.status_label.setText(u"Converting IFC model...")
         QgsApplication.processEvents()

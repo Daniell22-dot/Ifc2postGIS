@@ -122,9 +122,10 @@ The plugin lives in `ifc2postgis_qgis/ifc2postgis_qgis`. To install it:
 
 1. Copy that folder into
    `<QGIS profile>/python/plugins/ifc2postgis_qgis`.
-2. Make the `ifc2postgis` package importable from the QGIS Python environment
-   (for example with `pip install .` from this repository).
-3. Restart QGIS and enable **ifc2postgis-qgis** in Plugin Manager.
+2. The converter package is bundled inside the plugin, so no separate
+   `ifc2postgis` install is needed. Install `ifcopenshell` and `psycopg2` into
+   the QGIS Python environment if they are not already present.
+3. Restart QGIS and enable **ifc2postgis** in Plugin Manager.
 
 It adds an **IFC to PostGIS** action under the **BIM Tools** menu. The dialog
 accepts the IFC file, database URL, schema, SRID and optional table reset, then
