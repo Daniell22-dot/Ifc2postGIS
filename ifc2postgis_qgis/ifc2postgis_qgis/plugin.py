@@ -23,13 +23,10 @@ class Ifc2postgisQgisPlugin:
 
     def initGui(self):
         """Create the menu entry and toolbar icon for the plugin."""
-        self.action = QAction(
-            u"&IFC to PostGIS",
-            self.iface.mainWindow(),
-            triggered=self.run,
-            parent=self.iface.mainWindow(),
-        )
+        main_window = self.iface.mainWindow()
+        self.action = QAction(u"&IFC to PostGIS", main_window)
         self.action.setObjectName(u"ifc2postgisAction")
+        self.action.triggered.connect(self.run)
         self.iface.addPluginToMenu(u"&BIM Tools", self.action)
         self.iface.addToolBarIcon(self.action)
         self.actions.append(self.action)
