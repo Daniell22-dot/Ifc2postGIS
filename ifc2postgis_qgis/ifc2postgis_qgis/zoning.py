@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Zoning and room analysis tools for ifc2postgis-QGIS."""
 
-from qgis.PyQt.QtCore import QSettings, QObject, pyqtSignal
 from qgis.PyQt.QtWidgets import QMessageBox
 
 
