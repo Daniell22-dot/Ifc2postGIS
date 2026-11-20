@@ -1,15 +1,20 @@
 [project]
 name = "ifc2postgis"
-version = "0.1.0"
-description = ""
+version = "0.1.1"
+description = "Convert IFC building models into PostGIS spatial tables."
+readme = "README.md"
 authors = [
     {name = "Daniell22-dot",email = "manyasadaniel630@gmail.com"}
 ]
-requires-python = ">=3.13,<3.16"
+requires-python = ">=3.11,<3.16"
 dependencies = [
-    "ifcopenshell (>=0.9.0.post1,<0.10.0)"
+    "ifcopenshell (>=0.9.0.post1,<0.10.0)",
+    "psycopg2-binary (>=2.9,<3.0)",
+    "click (>=8.0,<9.0)"
 ]
 
+[project.scripts]
+ifc2postgis = "ifc2postgis.cli:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -5,4 +5,4 @@ This package exposes the CLI entry point and the core parsing and
 database modules used by the converter.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
