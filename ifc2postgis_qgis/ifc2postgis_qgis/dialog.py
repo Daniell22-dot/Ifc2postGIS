@@ -160,7 +160,9 @@ class Ifc2postgisDialog(QDialog):
                 self,
                 u"Error",
                 u"Cannot load the IFC converter: {0}\n\n"
-                u"Make sure ifcopenshell is installed in the QGIS Python environment.".format(
+                u"Install its dependencies from the QGIS Python Console:\n"
+                u"import sys, subprocess; subprocess.check_call([sys.executable, '-m', "
+                u"'pip', 'install', 'ifcopenshell==0.9.0.post1', 'psycopg2-binary'])".format(
                     str(exc)
                 ),
             )

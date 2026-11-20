@@ -122,9 +122,18 @@ The plugin lives in `ifc2postgis_qgis/ifc2postgis_qgis`. To install it:
 
 1. Copy that folder into
    `<QGIS profile>/python/plugins/ifc2postgis_qgis`.
-2. The converter package is bundled inside the plugin, so no separate
-   `ifc2postgis` install is needed. Install `ifcopenshell` and `psycopg2` into
-   the QGIS Python environment if they are not already present.
+2. The `ifc2postgis` converter package is bundled inside the plugin, so the
+   `No module named ifc2postgis` error cannot occur. The external runtime
+   dependency is `ifcopenshell` (plus `psycopg2`). Install them once from the
+   **QGIS Python Console**, which always targets the Python used by QGIS on
+   that machine:
+
+   ```python
+   import sys, subprocess
+   subprocess.check_call([sys.executable, '-m', 'pip', 'install',
+                          'ifcopenshell==0.9.0.post1', 'psycopg2-binary'])
+   ```
+
 3. Restart QGIS and enable **ifc2postgis** in Plugin Manager.
 
 It adds an **IFC to PostGIS** action under the **BIM Tools** menu. The dialog
