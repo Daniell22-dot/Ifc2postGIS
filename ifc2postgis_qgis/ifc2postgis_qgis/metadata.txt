@@ -3,7 +3,7 @@ name=ifc2postgis
 qgisMinimumVersion=3.0
 qgisMaximumVersion=3.99
 description=Turn an IFC building model into PostGIS layers you can query, style and analyse in QGIS.
-    Choose an IFC file, enter a PostGIS connection URL, pick a schema and SRID, then click Convert IFC.
+    Choose an IFC file, enter a PostGIS connection URL, pick a schema and CRS (or local coordinates), then click Convert IFC.
     Sites, buildings, storeys and spaces are added to the current project as separate layers.
 about=The plugin makes BIM data usable as spatial data without leaving QGIS.
     It converts each spatial level of an IFC model into a table row with its IFC GlobalId,
@@ -12,7 +12,7 @@ about=The plugin makes BIM data usable as spatial data without leaving QGIS.
     Conversion writes to ifc_site, ifc_building, ifc_storey and ifc_space in the target schema.
     An optional room analysis groups spaces into Laboratory, Office, Corridor, Men,
     Ladies and Other and shows the totals in the dialog.
-    Use SRID 4326 for georeferenced models or 0 for local Cartesian coordinates.
+    Choose an EPSG CRS for georeferenced models or local coordinates (SRID 0) for unprojected models.
 version=0.1.0
 author=Daniel Manyasa
 email=manyasadaniel630@gmail.com

@@ -5,7 +5,14 @@ import os
 import sys
 from urllib.parse import urlparse
 
-from qgis.core import QgsApplication, QgsDataSourceUri, QgsProject, QgsVectorLayer
+from qgis.core import (
+    QgsApplication,
+    QgsCoordinateReferenceSystem,
+    QgsDataSourceUri,
+    QgsProject,
+    QgsVectorLayer,
+)
+from qgis.gui import QgsProjectionSelectionWidget
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
@@ -29,7 +36,7 @@ class Ifc2postgisDialog(QDialog):
         super().__init__(parent)
         self.iface = iface
         self.setWindowTitle(u"IFC to PostGIS Conversion")
-        self.resize(500, 500)
+        self.resize(560, 600)
         self.setupUi()
 
     def setupUi(self):
@@ -48,7 +55,7 @@ class Ifc2postgisDialog(QDialog):
 
         self.db_url_label = QLabel(u"PostgreSQL Connection URL:")
         self.db_url_input = QLineEdit()
-        self.db_url_input.setPlaceholderText(u"postgresql://user:pass@host:5433/dbname  (port 5433)")
+        self.db_url_input.setPlaceholderText(u"postgresql://user:pass@host:5432/dbname")
 
         layout.addWidget(self.db_url_label)
         layout.addWidget(self.db_url_input)
@@ -61,14 +68,19 @@ class Ifc2postgisDialog(QDialog):
         schema_layout.addWidget(self.schema_input)
         layout.addLayout(schema_layout)
 
-        self.srid_label = QLabel(u"SRID:")
-        self.srid_input = QLineEdit(u"4326")
-        self.srid_input.setPlaceholderText(u"e.g., 4326 or 0")
+        self.crs_label = QLabel(u"Coordinate Reference System (CRS):")
+        self.crs_widget = QgsProjectionSelectionWidget()
+        self.crs_widget.setCrs(QgsCoordinateReferenceSystem(u"EPSG:4326"))
 
-        srid_layout = QHBoxLayout()
-        srid_layout.addWidget(self.srid_label)
-        srid_layout.addWidget(self.srid_input)
-        layout.addLayout(srid_layout)
+        crs_layout = QHBoxLayout()
+        crs_layout.addWidget(self.crs_label)
+        crs_layout.addWidget(self.crs_widget)
+        layout.addLayout(crs_layout)
+
+        self.local_crs_checkbox = QCheckBox(u"Use local coordinates (SRID 0)")
+        self.local_crs_checkbox.setChecked(False)
+        self.local_crs_checkbox.toggled.connect(self.update_crs_widget)
+        layout.addWidget(self.local_crs_checkbox)
 
         self.drop_checkbox = QCheckBox(u"Drop existing tables")
         self.drop_checkbox.setChecked(False)
@@ -99,6 +111,9 @@ class Ifc2postgisDialog(QDialog):
         layout.addWidget(self.zoning_label)
         layout.addWidget(self.zoning_text)
 
+    def update_crs_widget(self, checked):
+        self.crs_widget.setEnabled(not checked)
+
     def select_ifc_file(self):
         """Open file dialog to select IFC file."""
         file_path, _ = QFileDialog.getOpenFileName(
@@ -111,7 +126,6 @@ class Ifc2postgisDialog(QDialog):
         ifc_file = self.ifc_file_input.text().strip()
         db_url = self.db_url_input.text().strip()
         schema = self.schema_input.text().strip() or u"public"
-        srid_text = self.srid_input.text().strip()
 
         if not ifc_file:
             QMessageBox.critical(self, u"Error", u"Please select an IFC file.")
@@ -121,11 +135,17 @@ class Ifc2postgisDialog(QDialog):
             QMessageBox.critical(self, u"Error", u"Please enter a PostgreSQL connection URL.")
             return
 
-        try:
-            srid = int(srid_text)
-        except ValueError:
-            QMessageBox.critical(self, u"Error", u"SRID must be a valid integer.")
-            return
+        if self.local_crs_checkbox.isChecked():
+            srid = 0
+        else:
+            srid = self.crs_widget.crs().postgisSrid()
+            if not srid:
+                QMessageBox.critical(
+                    self,
+                    u"Error",
+                    u"Select an EPSG-based CRS or enable local coordinates.",
+                )
+                return
 
         plugin_dir = os.path.dirname(__file__)
         project_root = os.path.abspath(os.path.join(plugin_dir, u"..", u".."))
@@ -170,7 +190,7 @@ class Ifc2postgisDialog(QDialog):
             QMessageBox.critical(self, u"Error", u"Conversion failed: {0}".format(str(e)))
 
     def run_room_analysis(self, ifc_file, db_url, schema, srid):
-        """Run room analysis on spaces (school of engineering types)."""
+        """Run room analysis on spaces from the loaded IFC dataset."""
         self.status_label.setText(u"Running room analysis...")
         QgsApplication.processEvents()
 
@@ -182,18 +202,14 @@ class Ifc2postgisDialog(QDialog):
                 lines = [
                     u"Room Analysis Results:",
                     u"---------------------",
-                    u"Total rooms analyzed: {0}".format(total),
+                    u"Total spaces analyzed: {0}".format(total),
                     u"",
-                    u"By room type:",
-                    u"  Laboratory: {0}".format(stats["by_type"]["Laboratory"]),
-                    u"  Office: {0}".format(stats["by_type"]["Office"]),
-                    u"  Corridor: {0}".format(stats["by_type"]["Corridor"]),
-                    u"  Men: {0}".format(stats["by_type"]["Men"]),
-                    u"  Ladies: {0}".format(stats["by_type"]["Ladies"]),
-                    u"  Other: {0}".format(stats["by_type"]["Other"]),
-                    u"",
-                    u"Total rooms: {0}".format(total),
+                    u"Spaces by IFC name:",
                 ]
+                for label, count in sorted(
+                    stats["by_type"].items(), key=lambda item: (-item[1], item[0])
+                ):
+                    lines.append(u"  {0}: {1}".format(label, count))
                 self.zoning_text.setText("\n".join(lines))
                 self.zoning_text.setVisible(True)
         except Exception as e:

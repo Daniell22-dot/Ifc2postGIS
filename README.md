@@ -103,7 +103,7 @@ CREATE EXTENSION IF NOT EXISTS postgis;
 ```bash
 ifc2postgis \
     --input SOE.ifc \
-    --db-url "postgresql://user:password@localhost:5433/bim" \
+    --db-url "postgresql://user:password@localhost:5432/bim" \
     --srid 4326 \
     --schema public
 ```
@@ -128,15 +128,30 @@ The plugin lives in `ifc2postgis_qgis/ifc2postgis_qgis`. To install it:
 3. Restart QGIS and enable **ifc2postgis** in Plugin Manager.
 
 It adds an **IFC to PostGIS** action under the **BIM Tools** menu. The dialog
-accepts the IFC file, database URL, schema, SRID and optional table reset, then
-loads `ifc_site`, `ifc_building`, `ifc_storey` and `ifc_space` as QGIS layers.
+accepts the IFC file, database URL and schema, lets you pick any EPSG CRS with
+the QGIS CRS selector or choose local unprojected coordinates (SRID 0), and
+optionally resets existing tables. It then loads `ifc_site`, `ifc_building`,
+`ifc_storey` and `ifc_space` into the current project.
+
+## 3D models and exports
+
+The converter currently stores each element's vertices as `MULTIPOINT Z`. QGIS
+loads these as 3D-capable point layers, so you can style them by elevation and
+export them with **Save As** or `ogr2ogr -f GeoJSON`. A full solid/surface model
+or 3D tiles output requires a later step that reconstructs faces from the IFC
+geometry; the current point-cloud format is not a renderable 3D surface.
 
 ## Known limitations
 
-- Geometry is stored as a vertex point cloud, not as surfaces or solids.
+- Geometry is a vertex point cloud, not surfaces or solids; 3D tiles need
+  surface reconstruction first.
 - Parent links are resolved through `IfcRelAggregates`; files that only use
   `IfcRelContainedInSpatialStructure` will have null parent links.
 - Foreign key constraints are not created automatically.
+- Room analysis groups spaces by their own IFC `Name`/`LongName`, so it works
+  with any dataset vocabulary rather than a fixed list of room types.
+- `ifcopenshell` must be available in the QGIS Python environment; the plugin
+  reports a clear error if it is missing.
 
 ## Documentation
 
